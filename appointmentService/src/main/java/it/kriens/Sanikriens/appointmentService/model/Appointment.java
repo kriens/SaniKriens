@@ -1,0 +1,26 @@
+package it.kriens.Sanikriens.appointmentService.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import java.util.Date;
+
+
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@Document("appointments")
+@Builder
+public class Appointment {
+
+    @Id
+    private String id;
+    private String patientCodiceFiscale;
+    private Date date;
+    private HealthcareProvision provision;
+
+
+}
