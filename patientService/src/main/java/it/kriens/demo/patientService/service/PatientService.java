@@ -7,12 +7,14 @@ import it.kriens.demo.patientService.model.Patient;
 import it.kriens.demo.patientService.model.RemoteDevicesMetrics;
 import it.kriens.demo.patientService.repository.PatientRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.InvocationTargetException;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PatientService {
 
 
@@ -58,8 +60,8 @@ public class PatientService {
                 .bloodPressure(remoteDevicesMetrics.getBloodPressure())
                 .bloodSugar(remoteDevicesMetrics.getBloodSugar())
                 .heartRate(remoteDevicesMetrics.getHeartRate())
-                .Temperature(remoteDevicesMetrics.getTemperature())
-                .Weight(remoteDevicesMetrics.getWeight())
+                .temperature(remoteDevicesMetrics.getTemperature())
+                .weight(remoteDevicesMetrics.getWeight())
                 .build();
 
         if(patient.getMedicalRecords()==null){
@@ -72,6 +74,7 @@ public class PatientService {
         }
 
         patientRepository.save(patient);
+        log.info("Saved remote metrics.");
         return "Saved remote metrics!";
     }
 }

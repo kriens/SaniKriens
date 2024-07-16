@@ -1,19 +1,26 @@
 package it.kriens.Sanikriens.NotificationService;
 
 import it.kriens.Sanikriens.NotificationService.model.RemoteData;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.TopicBuilder;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @SpringBootApplication
+@Slf4j
 public class NotificationServiceApplication {
 
 	public static void main(String[] args) {
@@ -21,30 +28,26 @@ public class NotificationServiceApplication {
 	}
 
 
-	@Bean
-	public NewTopic topic(){
-
-		return TopicBuilder.name("remoteData")
-				.partitions(10)
-				.replicas(1).build();
-	}
 
 	@KafkaListener(id = "notificationService", topics = "remoteData")
-	public void listen(RemoteData remoteData){
+	public void listen(ConsumerRecord<String, RemoteData> record){
 
 		WebClient client = WebClient.create("http://localhost:8080");
 
 
-		final Mono<ClientResponse> postResponse =
-				client
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "application/json");
+		headers.add("codiceFiscale", record.key());
+
+		client
 						.post()
-						.uri("/people")
-						.body(Mono.just(remoteData), RemoteData.class)
+						.uri("/api/patient/remoteData")
+						.headers(h -> h.addAll(headers))
+						.body(Mono.just(record.value()), RemoteData.class)
 						.accept(APPLICATION_JSON)
 						.retrieve()
-						.bodyToMono(ClientResponse.class);
-		postResponse
-				.map(ClientResponse::statusCode)
-				.subscribe(status -> System.out.println("POST: " + status.getClass()));
+						.bodyToMono(String.class)
+						.subscribe(log::info);
+
 	}
 }

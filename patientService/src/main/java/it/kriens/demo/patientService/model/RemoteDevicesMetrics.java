@@ -14,6 +14,6 @@ public class RemoteDevicesMetrics {
     private String heartRate;
     private String bloodPressure;
     private String bloodSugar;
-    private String Temperature;
-    private Float Weight;
+    private String temperature;
+    private String weight;
 }
